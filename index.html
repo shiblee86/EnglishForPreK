@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Letter Adventures - Pre-K Reading (Ages 3-5)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Comic Sans MS', 'Chalkboard SE', 'Segoe UI', Arial, sans-serif;background:linear-gradient(135deg,#FFB6C1 0%,,#87CEEB 50%,,#FFD700 100%);min-height:100vh;padding:16px}
+.wrap{max-width:720px;margin:0 auto}
+
+/* Top Bar */
+.topbar{background:rgba(255,255,255,0.3);backdrop-filter:blur(10px);border:3px solid white;border-radius:30px;padding:8px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;position:sticky;top:8px;z-index:100}
+.topbar-title{font-size:1.3rem;font-weight:900;color:#fff;text-shadow:2px 2px 0 #9370DB}
+.topbar-btns{display:flex;gap:8px}
+.tb-btn{padding:8px 16px;border:none;border-radius:30px;font-weight:800;font-size:0.9rem;cursor:pointer;transition:transform 0.1s;border:2px solid white}
+.tb-btn:hover{transform:scale(1.1)}
+.tb-save{background:#FFD700;color:#8B4513}
+.tb-load{background:#98FB98;color:#006400}
+.tb-lbl{font-size:0.8rem;color:#fff;background:rgba(0,0,0,0.2);padding:4px 12px;border-radius:20px}
+
+/* Screens */
+.screen{display:none}
+.screen.active{display:block}
+
+/* Home Screen */
+.home-hero{text-align:center;padding:10px 0 14px}
+.home-hero h1{font-size:2.5rem;font-weight:900;color:#fff;text-shadow:3px 3px 0 #9370DB, 5px 5px 0 #FFD700;margin-bottom:5px}
+.home-hero p{color:white;font-size:1.2rem;background:rgba(0,0,0,0.1);padding:8px 20px;border-radius:30px;display:inline-block}
+
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;margin-top:14px}
+.menu-card{background:white;border-radius:30px;padding:22px 16px;text-align:center;cursor:pointer;box-shadow:0 8px 0 rgba(0,0,0,0.1),0 12px 24px rgba(0,0,0,0.2);transition:all 0.1s;border:4px solid transparent}
+.menu-card:hover{transform:translateY(-5px);box-shadow:0 13px 0 rgba(0,0,0,0.1),0 17px 24px rgba(0,0,0,0.2)}
+.menu-card.letters{border-color:#FF6B6B}
+.menu-card.sounds{border-color:#4ECDC4}
+.menu-card.writing{border-color:#FFD93D}
+.menu-card.reading{border-color:#9370DB}
+.mc-icon{font-size:3rem;margin-bottom:10px}
+.mc-name{font-weight:900;font-size:1.3rem;color:#2D3561;margin-bottom:6px}
+.mc-desc{font-size:0.9rem;color:#666;line-height:1.4}
+.mc-badge{display:inline-block;margin-top:10px;background:#9370DB;color:#fff;border-radius:30px;padding:5px 15px;font-size:0.9rem;font-weight:800}
+
+/* Progress Chart */
+.progress-chart{background:rgba(255,255,255,0.9);border-radius:30px;padding:15px;margin-top:15px;text-align:left;border:4px solid white}
+.progress-chart h3{color:#9370DB;font-size:1.2rem;margin-bottom:10px}
+.progress-bar-cont{background:#e0e0e0;border-radius:20px;height:25px;margin:8px 0;border:2px solid white}
+.progress-bar-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#FFD700,#9370DB);width:0%}
+.progress-stats{display:flex;justify-content:space-around;margin-top:8px;font-size:1rem;color:#2D3561;font-weight:800}
+.progress-stats span{background:white;padding:5px 10px;border-radius:20px;box-shadow:0 2px 0 #ccc}
+
+/* Levels Screen */
+.levels-wrap{background:rgba(255,255,255,0.95);border-radius:40px;padding:20px;box-shadow:0 8px 0 rgba(0,0,0,0.1);margin-top:12px;border:4px solid white}
+.levels-title{font-size:1.8rem;font-weight:900;color:#9370DB;margin-bottom:16px;text-align:center;text-shadow:2px 2px 0 #FFD700}
+.levels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px}
+.lv-btn{background:linear-gradient(135deg,#87CEEB,#9370DB);color:#fff;border:none;border-radius:30px;padding:15px 5px;cursor:pointer;text-align:center;font-weight:800;font-size:1rem;transition:all 0.1s;position:relative;border:3px solid white;box-shadow:0 5px 0 #663399}
+.lv-btn:hover:not(.locked){transform:translateY(-3px);box-shadow:0 8px 0 #663399}
+.lv-btn.locked{background:#d3d3d3;color:#888;box-shadow:0 5px 0 #aaa;border-color:#ccc;cursor:not-allowed}
+.lv-btn.done{background:linear-gradient(135deg,#FFD700,#FFA500);box-shadow:0 5px 0 #B8860B}
+.lv-icon{font-size:2rem;display:block;margin-bottom:4px}
+.lv-score{font-size:0.8rem;background:rgba(255,255,255,0.3);border-radius:20px;padding:2px 5px;margin-top:3px}
+.lv-lock{position:absolute;top:8px;right:8px;font-size:1.2rem}
+
+/* Quiz Screen */
+.quiz-head{background:white;border-radius:40px;padding:14px 16px;margin-bottom:12px;box-shadow:0 5px 0 #9370DB;border:3px solid #9370DB}
+.quiz-meta{display:flex;justify-content:space-between;font-size:1rem;color:#9370DB;font-weight:800;margin-bottom:8px}
+.quiz-score-row{display:flex;gap:14px;background:#F0F0FF;border-radius:30px;padding:10px}
+.qs-item{text-align:center;flex:1}
+.qs-label{font-size:0.8rem;color:#9370DB}
+.qs-val{font-size:2rem;font-weight:900;color:#2D3561}
+.prog-bar{background:#e0e0e0;border-radius:20px;height:15px;margin-top:8px;border:2px solid white}
+.prog-fill{height:100%;border-radius:20px;background:linear-gradient(90deg,#FFD700,#9370DB);transition:width 0.4s}
+
+/* Question Card */
+.q-card{background:white;border-radius:40px;padding:22px;box-shadow:0 8px 0 #9370DB;margin-bottom:12px;border:4px solid #9370DB;position:relative}
+.q-type-badge{display:inline-block;background:#9370DB;color:#fff;border-radius:30px;padding:5px 15px;font-size:1rem;font-weight:800;margin-bottom:15px;border:2px solid white}
+
+.q-text{font-size:1.5rem;font-weight:800;color:#2D3561;line-height:1.4;margin-bottom:20px;text-align:center}
+
+/* Letter Display */
+.big-letter{font-size:8rem;font-weight:900;color:#FF6B6B;text-align:center;margin:10px 0;text-shadow:4px 4px 0 #FFD700;line-height:1}
+.letter-row{display:flex;justify-content:center;gap:15px;margin:20px 0;flex-wrap:wrap}
+
+/* Letter Card for Tracing */
+.trace-card{background:#FFF9E6;border-radius:30px;padding:30px;margin:15px 0;border:4px dashed #FFD700;position:relative}
+.trace-letter{font-size:10rem;font-weight:900;color:#ddd;text-align:center;position:relative;user-select:none}
+.trace-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.2);pointer-events:none}
+.trace-dots{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:10px}
+.dot-line{display:flex;gap:5px;justify-content:center;margin:2px 0}
+.trace-dot{width:20px;height:20px;background:#FFD700;border-radius:50%;opacity:0.5}
+
+/* Sound Cards */
+.sound-card{background:#FFE4E1;border-radius:30px;padding:20px;margin:15px 0;display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.sound-letter{font-size:4rem;font-weight:900;color:#FF6B6B}
+.sound-picture{font-size:3rem}
+.sound-word{font-size:2rem;color:#4ECDC4;font-weight:800}
+
+/* Picture Cards for Reading */
+.picture-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin:20px 0}
+.picture-card{background:#E6E6FA;border-radius:30px;padding:20px;text-align:center;cursor:pointer;border:4px solid transparent;transition:all 0.1s}
+.picture-card:hover{transform:scale(1.05);border-color:#FFD700}
+.picture-card.selected{border-color:#9370DB;background:#D8BFD8}
+.picture-emoji{font-size:4rem;margin-bottom:10px}
+.picture-label{font-size:1.5rem;font-weight:800;color:#2D3561}
+
+/* Options */
+.options{display:grid;gap:12px;margin-top:10px}
+.options.two-col{grid-template-columns:1fr 1fr}
+.opt-btn{background:#87CEEB;border:none;border-radius:30px;padding:18px 16px;font-size:1.5rem;font-weight:800;color:#fff;cursor:pointer;text-align:center;border:4px solid white;box-shadow:0 5px 0 #4682B4;transition:all 0.1s}
+.opt-btn:hover{transform:scale(1.05);background:#98FB98;box-shadow:0 5px 0 #2E8B57}
+.opt-btn:active{transform:translateY(5px);box-shadow:0 0 0 #4682B4}
+.opt-btn.correct{background:#98FB98;box-shadow:0 5px 0 #2E8B57}
+.opt-btn.wrong{background:#FFB6C1;box-shadow:0 5px 0 #8B0000}
+
+/* Writing Area */
+.writing-area{background:#F5F5DC;border-radius:30px;padding:30px 20px;margin:20px 0;border:4px dashed #9370DB}
+.writing-line{display:flex;justify-content:center;align-items:center;gap:10px;margin:15px 0}
+.writing-letter{font-size:4rem;color:#9370DB;opacity:0.5}
+.writing-input{font-size:4rem;width:120px;text-align:center;border:none;border-bottom:4px solid #9370DB;background:transparent;outline:none;color:#FF6B6B;font-weight:900}
+.writing-hint{font-size:2rem;color:#FFD700;margin-top:10px}
+
+/* Audio Button */
+.audio-btn{background:#FFD700;border:none;border-radius:50px;padding:15px 30px;font-size:1.5rem;font-weight:800;color:#8B4513;cursor:pointer;border:4px solid white;box-shadow:0 5px 0 #B8860B;transition:all 0.1s;margin:10px auto;display:block}
+.audio-btn:hover{transform:scale(1.1);background:#FFA500}
+.audio-btn:active{transform:translateY(5px);box-shadow:0 0 0 #B8860B}
+
+/* Feedback */
+.feedback{border-radius:30px;padding:20px;font-weight:800;font-size:1.5rem;margin:10px 0;display:none;text-align:center;border:4px solid white}
+.feedback.show{display:block}
+.feedback.ok{background:#98FB98;color:#006400}
+.feedback.bad{background:#FFB6C1;color:#8B0000}
+
+.explanation{background:#FFF9C4;border-radius:30px;padding:15px;font-size:1.1rem;color:#8B4513;font-weight:700;margin:8px 0;display:none;border:3px dashed #FFD700}
+.explanation.show{display:block}
+
+.hint-box{background:#E6E6FA;border-radius:30px;padding:15px;font-size:1.2rem;color:#4B0082;font-weight:700;margin:8px 0;display:none;border:3px solid #FFD700}
+.hint-box.show{display:block}
+
+/* Buttons */
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:15px 20px;border:none;border-radius:40px;font-weight:900;font-size:1.2rem;cursor:pointer;transition:all 0.1s;border:4px solid white;box-shadow:0 5px 0 rgba(0,0,0,0.2)}
+.btn:hover{transform:translateY(-3px);box-shadow:0 8px 0 rgba(0,0,0,0.2)}
+.btn:active{transform:translateY(5px);box-shadow:0 0 0 rgba(0,0,0,0.2)}
+.btn-check{background:#9370DB;color:#fff;flex:1;box-shadow:0 5px 0 #663399}
+.btn-next{background:#4ECDC4;color:#fff;flex:1;display:none;box-shadow:0 5px 0 #2E8B57}
+.btn-hint{background:#FFD700;color:#8B4513;box-shadow:0 5px 0 #B8860B}
+.btn-back{background:#D3D3D3;color:#555;box-shadow:0 5px 0 #808080}
+.btn-speak{background:#FF69B4;color:#fff;box-shadow:0 5px 0 #8B008B}
+
+/* Result Screen */
+.result-card{background:white;border-radius:50px;padding:28px;text-align:center;box-shadow:0 8px 0 #9370DB;margin-top:12px;border:5px solid #9370DB}
+.result-emoji{font-size:5rem;margin-bottom:10px}
+.result-title{font-size:2.5rem;font-weight:900;color:#9370DB;margin-bottom:8px;text-shadow:2px 2px 0 #FFD700}
+.result-pct{font-size:3rem;font-weight:900;margin:8px 0;color:#4ECDC4}
+.result-stars{font-size:3rem;margin:8px 0;color:#FFD700}
+.result-msg{background:#F0F0FF;border-radius:30px;padding:15px;font-size:1.2rem;color:#2D3561;font-weight:700;margin:12px 0}
+.mistake-section{text-align:left;margin:12px 0;background:#FFF9E6;border-radius:30px;padding:15px}
+.mistake-title{font-weight:900;color:#9370DB;margin-bottom:8px;font-size:1.2rem}
+.mistake-item{background:white;border-radius:20px;padding:10px;margin-bottom:8px;font-size:1rem;border:2px solid #FFB6C1}
+
+@media(max-width:480px){
+  .two-col{grid-template-columns:1fr}
+  .home-hero h1{font-size:1.8rem}
+  .menu-grid{grid-template-columns:repeat(2,1fr)}
+  .big-letter{font-size:5rem}
+  .trace-letter{font-size:6rem}
+  .writing-input{font-size:3rem;width:80px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-title">📚 Letter Adventures</div>
+  <div class="topbar-btns">
+    <button class="tb-btn tb-save" onclick="saveProgress()">💾 Save</button>
+    <button class="tb-btn tb-load" onclick="loadProgress()">📂 Load</button>
+    <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadFile(event)">
+  </div>
+  <div class="tb-lbl" id="saveLbl">⭐ 0 stars</div>
+</div>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="homeScreen">
+  <div class="home-hero">
+    <h1>📚 Letter Adventures</h1>
+    <p>Let's learn letters, sounds, and words! ⭐</p>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card letters" onclick="openCategory('letters')">
+      <div class="mc-icon">🔤</div>
+      <div class="mc-name">ABC Letters</div>
+      <div class="mc-desc">Learn big and small letters!</div>
+      <div class="mc-badge">5 Levels</div>
+    </div>
+    <div class="menu-card sounds" onclick="openCategory('sounds')">
+      <div class="mc-icon">🔊</div>
+      <div class="mc-name">Letter Sounds</div>
+      <div class="mc-desc">What sound does it make?</div>
+      <div class="mc-badge">5 Levels</div>
+    </div>
+    <div class="menu-card writing" onclick="openCategory('writing')">
+      <div class="mc-icon">✏️</div>
+      <div class="mc-name">Writing Practice</div>
+      <div class="mc-desc">Trace and write letters!</div>
+      <div class="mc-badge">5 Levels</div>
+    </div>
+    <div class="menu-card reading" onclick="openCategory('reading')">
+      <div class="mc-icon">📖</div>
+      <div class="mc-name">First Words</div>
+      <div class="mc-desc">Read simple words!</div>
+      <div class="mc-badge">5 Levels</div>
+    </div>
+  </div>
+  <div class="progress-chart" id="progressChart"></div>
+</div>
+
+<!-- LEVELS SCREEN -->
+<div class="screen" id="levelsScreen">
+  <div class="levels-wrap">
+    <div class="levels-title" id="levelsTitle">Choose a Level</div>
+    <div class="levels-grid" id="levelsGrid"></div>
+    <div style="margin-top:14px;text-align:center">
+      <button class="btn btn-back" onclick="showHome()">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-head">
+    <div class="quiz-meta">
+      <span id="quizLabel">ABC Letters • Level 1</span>
+      <span id="quizQNum">Game 1 / 5</span>
+    </div>
+    <div class="quiz-score-row">
+      <div class="qs-item"><div class="qs-label">Stars</div><div class="qs-val" id="qsCorrect">0</div></div>
+      <div class="qs-item"><div class="qs-label">Try Again</div><div class="qs-val" id="qsWrong">0</div></div>
+      <div class="qs-item"><div class="qs-label">Good!</div><div class="qs-val" id="qsAcc">⭐</div></div>
+    </div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+  </div>
+  <div class="q-card" id="qCard"></div>
+  <div class="hint-box" id="hintBox"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="explanation" id="explanation"></div>
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="leaveQuiz()">← Home</button>
+    <button class="btn btn-hint" id="hintBtn" onclick="showHint()">💡 Hint</button>
+    <button class="btn btn-speak" id="speakBtn" onclick="speakLetter()" style="display:none">🔊</button>
+    <button class="btn btn-check" id="checkBtn" onclick="checkAnswer()">✅ Check</button>
+    <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">▶ Next</button>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen" id="resultScreen">
+  <div class="result-card">
+    <div class="result-emoji" id="resEmoji">🏆</div>
+    <div class="result-title" id="resTitle">Great Job!</div>
+    <div class="result-pct" id="resPct">⭐⭐⭐</div>
+    <div class="result-stars" id="resStars"></div>
+    <div class="result-msg" id="resMsg">You're a reading superstar! ⭐</div>
+    <div class="mistake-section" id="mistakeSection"></div>
+    <div class="btn-row" style="justify-content:center;margin-top:16px">
+      <button class="btn btn-back" id="retryBtn">🔁 Play Again</button>
+      <button class="btn btn-check" onclick="showHome()">🏠 Home</button>
+      <button class="btn btn-next" id="nextLvBtn" style="display:none">➡ Next Level</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ============================================================
+// PRE-K READING - Letters, Sounds, Writing & Reading
+// ============================================================
+
+function rnd(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Letter sets by level
+const LETTERS = {
+  1: ['A', 'B', 'C', 'D', 'E'],
+  2: ['F', 'G', 'H', 'I', 'J'],
+  3: ['K', 'L', 'M', 'N', 'O'],
+  4: ['P', 'Q', 'R', 'S', 'T'],
+  5: ['U', 'V', 'W', 'X', 'Y', 'Z']
+};
+
+// Words for reading (CVC and simple words)
+const WORDS = {
+  1: ['cat', 'dog', 'sun', 'hat', 'ball'],
+  2: ['book', 'fish', 'bird', 'tree', 'star'],
+  3: ['house', 'apple', 'happy', 'little', 'friend'],
+  4: ['jump', 'play', 'read', 'sing', 'dance'],
+  5: ['rainbow', 'butterfly', 'elephant', 'giraffe', 'dinosaur']
+};
+
+// Picture emojis for words
+const WORD_PICTURES = {
+  'cat': '🐱', 'dog': '🐶', 'sun': '☀️', 'hat': '🎩', 'ball': '⚽',
+  'book': '📚', 'fish': '🐠', 'bird': '🐦', 'tree': '🌳', 'star': '⭐',
+  'house': '🏠', 'apple': '🍎', 'happy': '😊', 'little': '👶', 'friend': '👫',
+  'jump': '🦘', 'play': '🎮', 'read': '📖', 'sing': '🎤', 'dance': '💃',
+  'rainbow': '🌈', 'butterfly': '🦋', 'elephant': '🐘', 'giraffe': '🦒', 'dinosaur': '🦕'
+};
+
+// ========== LETTER RECOGNITION ==========
+function generateLetterQuestions(level) {
+  let letters = LETTERS[level] || LETTERS[1];
+  let questions = [];
+  
+  for(let i = 0; i < 5; i++) {
+    let letter = letters[Math.floor(Math.random() * letters.length)];
+    let wrongLetters = letters.filter(l => l !== letter).slice(0, 3);
+    
+    questions.push({
+      type: 'letter',
+      question: `Find the letter ${letter}!`,
+      letter: letter,
+      display: letter,
+      options: shuffle([letter, ...wrongLetters]),
+      answer: letter,
+      hint: `Look for the letter that looks like this: ${letter}`,
+      sound: letter
+    });
+  }
+  
+  return questions;
+}
+
+// ========== LETTER SOUNDS ==========
+function generateSoundQuestions(level) {
+  let letters = LETTERS[level] || LETTERS[1];
+  let questions = [];
+  
+  // Common sound associations
+  const soundAssociations = {
+    'A': 'apple', 'B': 'ball', 'C': 'cat', 'D': 'dog', 'E': 'egg',
+    'F': 'fish', 'G': 'goat', 'H': 'hat', 'I': 'igloo', 'J': 'jump',
+    'K': 'kite', 'L': 'lion', 'M': 'moon', 'N': 'nest', 'O': 'octopus',
+    'P': 'pig', 'Q': 'queen', 'R': 'rain', 'S': 'sun', 'T': 'tree',
+    'U': 'umbrella', 'V': 'violin', 'W': 'water', 'X': 'x-ray', 'Y': 'yarn', 'Z': 'zebra'
+  };
+  
+  for(let i = 0; i < 5; i++) {
+    let letter = letters[Math.floor(Math.random() * letters.length)];
+    let word = soundAssociations[letter] || 'apple';
+    let picture = WORD_PICTURES[word] || '🔤';
+    
+    questions.push({
+      type: 'sound',
+      question: `What sound does ${letter} make?`,
+      letter: letter,
+      word: word,
+      picture: picture,
+      options: shuffle([letter.toLowerCase(), ...letters.filter(l => l !== letter).map(l => l.toLowerCase()).slice(0, 2)]),
+      answer: letter.toLowerCase(),
+      hint: `${letter} says ${letter.toLowerCase()} like in "${word}"!`,
+      sound: letter
+    });
+  }
+  
+  return questions;
+}
+
+// ========== WRITING PRACTICE ==========
+function generateWritingQuestions(level) {
+  let letters = LETTERS[level] || LETTERS[1];
+  let questions = [];
+  
+  for(let i = 0; i < 5; i++) {
+    let letter = letters[Math.floor(Math.random() * letters.length)];
+    
+    questions.push({
+      type: 'writing',
+      question: `Trace the letter ${letter}!`,
+      letter: letter,
+      display: letter,
+      hint: `Start at the top! Down, then around...`,
+      sound: letter
+    });
+  }
+  
+  return questions;
+}
+
+// ========== FIRST WORDS ==========
+function generateReadingQuestions(level) {
+  let words = WORDS[level] || WORDS[1];
+  let questions = [];
+  
+  for(let i = 0; i < 5; i++) {
+    let word = words[Math.floor(Math.random() * words.length)];
+    let picture = WORD_PICTURES[word] || '📖';
+    let wrongWords = words.filter(w => w !== word).slice(0, 3);
+    
+    questions.push({
+      type: 'reading',
+      question: `Can you read this word?`,
+      word: word,
+      picture: picture,
+      options: shuffle([word, ...wrongWords]),
+      answer: word,
+      hint: `Sound it out: ${word.split('').join('... ')}`,
+      sound: word
+    });
+  }
+  
+  return questions;
+}
+
+// ============================================================
+// STATE MANAGEMENT
+// ============================================================
+const PASS_PCT = 70;
+const STORAGE_KEY = "letterAdv_v1";
+const CATS = {
+  letters: {label: "ABC Letters", levels: 5, color: "#FF6B6B", icon: "🔤"},
+  sounds: {label: "Letter Sounds", levels: 5, color: "#4ECDC4", icon: "🔊"},
+  writing: {label: "Writing Practice", levels: 5, color: "#FFD93D", icon: "✏️"},
+  reading: {label: "First Words", levels: 5, color: "#9370DB", icon: "📖"}
+};
+
+let progress = {};
+let cat = "", level = 0, questions = [], qi = 0, correct = 0, wrong = 0, mistakes = [];
+let answered = false, hintCount = 0;
+let writingInput = "";
+
+function initProgress() {
+  Object.keys(CATS).forEach(c => {
+    if(!progress[c]) progress[c] = {};
+    for(let l = 1; l <= CATS[c].levels; l++) {
+      if(!progress[c][l]) progress[c][l] = {done: false, stars: 0, unlocked: l === 1};
+    }
+  });
+}
+
+function saveProgress() {
+  const blob = new Blob([JSON.stringify({v:1, progress}, null, 2)], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "letter-adventure-save.json";
+  a.click();
+  document.getElementById("saveLbl").textContent = "✅ Saved! ⭐";
+  setTimeout(updateSaveLbl, 2000);
+}
+
+function loadProgress() { 
+  document.getElementById("loadFile").click(); 
+}
+
+function loadFile(e) {
+  const file = e.target.files[0]; 
+  if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if(d.v === 1 && d.progress) {
+        progress = d.progress;
+        initProgress();
+        updateSaveLbl();
+      } else alert("Oops! Can't load that file.");
+    } catch { alert("Hmm, that didn't work. Try again!"); }
+  };
+  r.readAsText(file);
+  e.target.value = "";
+}
+
+function updateSaveLbl() {
+  let totalStars = 0;
+  Object.keys(CATS).forEach(c => {
+    for(let l = 1; l <= CATS[c].levels; l++) {
+      if(progress[c] && progress[c][l]) totalStars += progress[c][l].stars || 0;
+    }
+  });
+  document.getElementById("saveLbl").textContent = "⭐ " + totalStars + " stars";
+  
+  // Update progress chart
+  let chart = document.getElementById("progressChart");
+  if(chart) {
+    let completed = 0, total = 0;
+    Object.keys(CATS).forEach(c => {
+      for(let l = 1; l <= CATS[c].levels; l++) {
+        total++;
+        if(progress[c] && progress[c][l] && progress[c][l].done) completed++;
+      }
+    });
+    let pct = Math.round((completed/total)*100);
+    
+    chart.innerHTML = `
+      <h3>📊 My Reading Journey</h3>
+      <div style="margin-bottom:5px">⭐ ${totalStars} stars earned!</div>
+      <div class="progress-bar-cont"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
+      <div class="progress-stats">
+        <span>🔤 ${progress.letters ? Object.values(progress.letters).filter(p => p.done).length : 0}/5</span>
+        <span>🔊 ${progress.sounds ? Object.values(progress.sounds).filter(p => p.done).length : 0}/5</span>
+        <span>✏️ ${progress.writing ? Object.values(progress.writing).filter(p => p.done).length : 0}/5</span>
+        <span>📖 ${progress.reading ? Object.values(progress.reading).filter(p => p.done).length : 0}/5</span>
+      </div>
+    `;
+  }
+}
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function showHome() { 
+  updateSaveLbl();
+  showScreen("homeScreen"); 
+}
+
+function openCategory(c) {
+  cat = c;
+  document.getElementById("levelsTitle").textContent = CATS[c].label + " — Choose Level";
+  const grid = document.getElementById("levelsGrid");
+  grid.innerHTML = "";
+  const emojis = ["🥉", "🥈", "🥇", "🏆", "👑"];
+  
+  for(let l = 1; l <= CATS[c].levels; l++) {
+    const p = progress[c][l];
+    const btn = document.createElement("button");
+    btn.className = "lv-btn" + (p.unlocked ? "" : " locked") + (p.done ? " done" : "");
+    btn.innerHTML = '<span class="lv-icon">' + emojis[l-1] + '</span>Level ' + l + 
+                    (p.stars > 0 ? '<div class="lv-score">⭐ ' + p.stars + '</div>' : '') + 
+                    (!p.unlocked ? '<span class="lv-lock">🔒</span>' : "");
+    if(p.unlocked) btn.onclick = (function(ll) { return function() { startLevel(ll); }; })(l);
+    grid.appendChild(btn);
+  }
+  showScreen("levelsScreen");
+}
+
+function startLevel(l) {
+  level = l;
+  qi = 0;
+  correct = 0;
+  wrong = 0;
+  mistakes = [];
+  answered = false;
+  hintCount = 0;
+  writingInput = "";
+  
+  // Generate fresh problems!
+  if(cat === 'letters') questions = generateLetterQuestions(level);
+  else if(cat === 'sounds') questions = generateSoundQuestions(level);
+  else if(cat === 'writing') questions = generateWritingQuestions(level);
+  else if(cat === 'reading') questions = generateReadingQuestions(level);
+  
+  document.getElementById("quizLabel").textContent = CATS[cat].label + " • Level " + l;
+  document.getElementById("speakBtn").style.display = (cat === 'letters' || cat === 'sounds' || cat === 'reading') ? "inline-flex" : "none";
+  showScreen("quizScreen");
+  loadQuestion();
+}
+
+function leaveQuiz() {
+  if(confirm("Leave this game? You can come back anytime!")) showHome();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[qi];
+  const total = questions.length;
+  
+  document.getElementById("quizQNum").textContent = "Game " + (qi+1) + " / " + total;
+  document.getElementById("qsCorrect").textContent = correct;
+  document.getElementById("qsWrong").textContent = wrong;
+  document.getElementById("qsAcc").textContent = "⭐";
+  document.getElementById("progFill").style.width = ((qi)/total*100) + "%";
+  
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("explanation").className = "explanation";
+  document.getElementById("hintBox").className = "hint-box";
+  document.getElementById("checkBtn").style.display = "inline-flex";
+  document.getElementById("nextBtn").style.display = "none";
+  
+  const hintAllowed = qi < 3 && hintCount < 3;
+  const hintBtn = document.getElementById("hintBtn");
+  hintBtn.style.display = hintAllowed ? "inline-flex" : "none";
+  hintBtn.disabled = false;
+  
+  renderQuestion(q);
+}
+
+function renderQuestion(q) {
+  const card = document.getElementById("qCard");
+  const colors = {
+    letters: "#FF6B6B",
+    sounds: "#4ECDC4", 
+    writing: "#FFD93D",
+    reading: "#9370DB"
+  };
+  card.style.borderTopColor = colors[cat];
+  
+  let html = `<div class="q-type-badge">${CATS[cat].icon} ${CATS[cat].label}</div>`;
+  html += `<div class="q-text">${q.question}</div>`;
+  
+  if(cat === 'letters') {
+    html += `<div class="big-letter">${q.display}</div>`;
+    html += `<div class="options two-col" id="opts">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="opt-btn" onclick="selectLetter('${opt}', '${q.answer}')">${opt}</button>`;
+    });
+    html += `</div>`;
+    
+  } else if(cat === 'sounds') {
+    html += `<div class="sound-card">`;
+    html += `<div class="sound-letter">${q.letter}</div>`;
+    html += `<div class="sound-picture">${q.picture}</div>`;
+    html += `<div class="sound-word">${q.word}</div>`;
+    html += `</div>`;
+    
+    html += `<div class="options two-col" id="opts">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="opt-btn" onclick="selectSound('${opt}', '${q.answer}')">${opt}</button>`;
+    });
+    html += `</div>`;
+    
+  } else if(cat === 'writing') {
+    html += `<div class="writing-area">`;
+    html += `<div class="trace-letter" style="color:#ddd; font-size:6rem;">${q.letter}</div>`;
+    html += `<div class="writing-line">`;
+    html += `<span class="writing-letter">${q.letter}</span>`;
+    html += `<span class="writing-letter">→</span>`;
+    html += `<input class="writing-input" id="writingInput" type="text" maxlength="1" placeholder="${q.letter}" oninput="writingTyped(this.value)">`;
+    html += `</div>`;
+    html += `<div class="writing-hint">⬆️ Trace the letter with your finger!</div>`;
+    html += `</div>`;
+    
+  } else if(cat === 'reading') {
+    html += `<div class="sound-card">`;
+    html += `<div class="sound-picture" style="font-size:4rem;">${q.picture}</div>`;
+    html += `<div class="sound-word" style="font-size:2rem;">${q.word}</div>`;
+    html += `</div>`;
+    
+    html += `<div class="options two-col" id="opts">`;
+    q.options.forEach((opt, i) => {
+      html += `<button class="opt-btn" onclick="selectWord('${opt}', '${q.answer}')">${opt}</button>`;
+    });
+    html += `</div>`;
+  }
+  
+  card.innerHTML = html;
+  
+  // Focus on writing input if needed
+  if(cat === 'writing') {
+    setTimeout(() => {
+      document.getElementById('writingInput')?.focus();
+    }, 500);
+  }
+}
+
+// Answer selection functions
+function selectLetter(selected, correct) {
+  if(answered) return;
+  answered = true;
+  
+  const isCorrect = selected === correct;
+  
+  if(isCorrect) { 
+    correct++; 
+    highlightCorrect('opt-btn', selected, true);
+  } else { 
+    wrong++; 
+    mistakes.push({q: `Find letter ${correct}`, exp: "Good try! Let's practice more!"});
+    highlightCorrect('opt-btn', selected, false, correct);
+  }
+  
+  showFeedback(isCorrect, isCorrect ? "🎉 Great job! You found the letter!" : "💙 Almost! That's " + selected + ", we wanted " + correct);
+}
+
+function selectSound(selected, correct) {
+  if(answered) return;
+  answered = true;
+  
+  const isCorrect = selected === correct;
+  
+  if(isCorrect) { 
+    correct++; 
+    highlightCorrect('opt-btn', selected, true);
+  } else { 
+    wrong++; 
+    mistakes.push({q: `Find sound ${correct}`, exp: "Good try! Let's practice more!"});
+    highlightCorrect('opt-btn', selected, false, correct);
+  }
+  
+  showFeedback(isCorrect, isCorrect ? "🎉 Perfect! That's the right sound!" : "💙 That's " + selected + ", the sound is " + correct);
+}
+
+function selectWord(selected, correct) {
+  if(answered) return;
+  answered = true;
+  
+  const isCorrect = selected === correct;
+  
+  if(isCorrect) { 
+    correct++; 
+    highlightCorrect('opt-btn', selected, true);
+  } else { 
+    wrong++; 
+    mistakes.push({q: `Read word: ${correct}`, exp: "Good try! Let's practice more!"});
+    highlightCorrect('opt-btn', selected, false, correct);
+  }
+  
+  showFeedback(isCorrect, isCorrect ? "🎉 You read it! Amazing!" : "💙 That says " + selected + ", the word is " + correct);
+}
+
+function writingTyped(val) {
+  writingInput = val.toUpperCase();
+}
+
+function checkAnswer() {
+  if(answered) return;
+  
+  if(cat === 'writing') {
+    const q = questions[qi];
+    const input = document.getElementById('writingInput')?.value || '';
+    const isCorrect = input.toUpperCase() === q.letter;
+    
+    answered = true;
+    
+    if(isCorrect) { 
+      correct++; 
+    } else { 
+      wrong++; 
+      mistakes.push({q: `Write letter ${q.letter}`, exp: "Keep practicing!"});
+    }
+    
+    showFeedback(isCorrect, isCorrect ? "🎉 Beautiful writing!" : "💙 Try tracing the letter " + q.letter);
+  } else {
+    // If no answer selected yet
+    showFeedback(false, "👆 Tap one of the buttons!");
+  }
+}
+
+function highlightCorrect(className, selected, isCorrect, correct = null) {
+  document.querySelectorAll('.' + className).forEach(btn => {
+    btn.disabled = true;
+    if(btn.textContent === selected) {
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    }
+    if(correct && btn.textContent === correct) {
+      btn.classList.add('correct');
+    }
+  });
+}
+
+function speakLetter() {
+  const q = questions[qi];
+  if(q && q.sound) {
+    const utterance = new SpeechSynthesisUtterance(q.sound);
+    utterance.rate = 0.8;
+    utterance.pitch = 1.2;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function showFeedback(isCorrect, msg) {
+  const fb = document.getElementById("feedback");
+  fb.textContent = isCorrect ? "✅ " + msg : "💙 " + msg;
+  fb.className = "feedback show " + (isCorrect ? "ok" : "bad");
+  
+  document.getElementById("checkBtn").style.display = "none";
+  document.getElementById("nextBtn").style.display = "inline-flex";
+  document.getElementById("hintBtn").style.display = "none";
+  document.getElementById("qsCorrect").textContent = correct;
+  document.getElementById("qsWrong").textContent = wrong;
+}
+
+function showHint() {
+  const q = questions[qi];
+  hintCount++;
+  const hb = document.getElementById("hintBox");
+  hb.textContent = "💡 " + (q.hint || "Try saying it out loud!");
+  hb.className = "hint-box show";
+  document.getElementById("hintBtn").disabled = true;
+}
+
+function nextQuestion() {
+  qi++;
+  if(qi >= questions.length) showResult();
+  else loadQuestion();
+}
+
+function showResult() {
+  const total = questions.length;
+  const pct = Math.round((correct/total)*100);
+  const stars = Math.min(3, Math.ceil(correct / 2)); // 1-3 stars
+  
+  // Save progress (pass if got at least 3 right)
+  if(correct >= 3) {
+    progress[cat][level].done = true;
+    progress[cat][level].stars = Math.max(progress[cat][level].stars || 0, stars);
+    if(level < CATS[cat].levels) progress[cat][level+1].unlocked = true;
+  }
+  
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({v:1, progress})); } catch {}
+  updateSaveLbl();
+  
+  // Celebration based on stars
+  document.getElementById("resEmoji").textContent = stars === 3 ? "🏆" : stars === 2 ? "🌟" : "⭐";
+  document.getElementById("resTitle").textContent = stars === 3 ? "SUPER READER!" : stars === 2 ? "Great Job!" : "Good Trying!";
+  document.getElementById("resPct").innerHTML = "⭐".repeat(stars);
+  document.getElementById("resStars").innerHTML = "⭐".repeat(stars);
+  document.getElementById("resMsg").innerHTML = stars === 3 ? "You got all stars! Amazing reading!" 
+    : stars === 2 ? "You did great! Want to try for 3 stars?" 
+    : "Good job! Every star counts! ⭐";
+  
+  const ms = document.getElementById("mistakeSection");
+  if(mistakes.length > 0) {
+    ms.innerHTML = '<div class="mistake-title">💪 Keep practicing:</div>' + 
+      mistakes.map(() => '<div class="mistake-item">You\'ll get it next time! 🌟</div>').join("");
+  } else ms.innerHTML = "";
+  
+  document.getElementById("retryBtn").onclick = function() { startLevel(level); };
+  const nb = document.getElementById("nextLvBtn");
+  if(correct >= 3 && level < CATS[cat].levels) {
+    nb.style.display = "inline-flex";
+    nb.onclick = function() { startLevel(level + 1); };
+  } else nb.style.display = "none";
+  
+  showScreen("resultScreen");
+}
+
+// Initialize
+(function init() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) { const d = JSON.parse(raw); if(d.v === 1 && d.progress) progress = d.progress; }
+  } catch {}
+  initProgress();
+  updateSaveLbl();
+})();
+</script>
+</body>
+</html>
