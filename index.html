@@ -97,7 +97,7 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
 .opt-btn{background:#6b4f9f;border:4px solid #b794f4;border-radius:60px;padding:20px 16px;font-size:2rem;font-weight:800;color:white;cursor:pointer;text-align:center;box-shadow:0 8px 0 #1e1133;transition:0.1s;min-height:90px;}
 .opt-btn:active:not(:disabled){transform:translateY(6px);box-shadow:0 2px 0 #1e1133;}
 .opt-btn:disabled{opacity:0.8;}
-.opt-btn.correct{background:#b4e6d9;border-color:#ffe5b4;color:#2d1b4a;}
+.opt-btn.correct{background:#b4e6d9;border-color:#ffe5b4;color:#2d1b4a; animation: bounce 0.5s;}
 .opt-btn.wrong{background:#ff9ebb;border-color:#ffb3b3;color:#2d1b4a;}
 
 /* Audio Button */
@@ -105,10 +105,13 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
 .audio-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #b794f4;}
 
 /* Feedback */
-.feedback{border-radius:60px;padding:22px 25px;font-weight:900;font-size:1.6rem;margin:15px 0;display:none;text-align:center;border:4px solid white;}
+.feedback{border-radius:60px;padding:22px 25px;font-weight:900;font-size:1.6rem;margin:15px 0;display:none;text-align:center;border:4px solid white; animation: popIn 0.3s;}
 .feedback.show{display:block;}
 .feedback.ok{background:#b4e6d9;color:#1e4a3a;border:4px solid #a3d977;}
 .feedback.bad{background:#ff9ebb;color:#721c24;border:4px solid #ff6b6b;}
+
+@keyframes popIn { 0%{transform:scale(0.8);opacity:0;} 100%{transform:scale(1);opacity:1;} }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
 
 .explanation{background:#6b4f9f;border:4px dashed #ffe5b4;border-radius:40px;padding:18px;font-size:1.3rem;color:#d4c2ff;font-weight:700;margin:10px 0;display:none;}
 .explanation.show{display:block;}
@@ -127,8 +130,9 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
 .btn-speak{background:#ff9ebb;color:#2d1b4a;font-size:1.5rem;}
 
 /* Result Screen */
-.result-card{background:#4a2f7a;border-radius:80px;padding:40px 25px;text-align:center;border:8px solid #ffe5b4;box-shadow:0 15px 0 #1e1133;}
-.result-emoji{font-size:7rem;margin-bottom:15px;}
+.result-card{background:#4a2f7a;border-radius:80px;padding:40px 25px;text-align:center;border:8px solid #ffe5b4;box-shadow:0 15px 0 #1e1133; animation: celebrationPulse 2s infinite;}
+@keyframes celebrationPulse { 0%{box-shadow:0 0 20px #ffd700;} 50%{box-shadow:0 0 50px #ff69b4;} 100%{box-shadow:0 0 20px #ffd700;} }
+.result-emoji{font-size:7rem;margin-bottom:15px; animation: bounce 1s infinite;}
 .result-title{font-size:4rem;font-weight:900;color:#ffe5b4;text-shadow:4px 4px 0 #b794f4;margin-bottom:15px;}
 .result-pct{font-size:4rem;font-weight:900;margin:15px 0;color:#b4e6d9;}
 .result-stars{font-size:4rem;margin:15px 0;color:#ffe5b4;}
@@ -217,7 +221,7 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
     <div class="quiz-score-row">
       <div class="qs-item"><div class="qs-label">⭐ Stars</div><div class="qs-val" id="qsCorrect">0</div></div>
       <div class="qs-item"><div class="qs-label">🤔 Try Again</div><div class="qs-val" id="qsWrong">0</div></div>
-      <div class="qs-item"><div class="qs-label">📊 Progress</div><div class="qs-val" id="qsAcc">⭐</div></div>
+      <div class="qs-item"><div class="qs-label">📊 Progress</div><div class="qs-val" id="qsAcc">0%</div></div>
     </div>
     <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
   </div>
@@ -228,7 +232,7 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
   <div class="btn-row">
     <button class="btn btn-back" onclick="leaveQuiz()">🏠 Home</button>
     <button class="btn btn-hint" id="hintBtn" onclick="showHint()">💡 Friendly Hint</button>
-    <button class="btn btn-speak" id="speakBtn" onclick="speakLetter()" style="display:none">🔊 Hear it</button>
+    <button class="btn btn-speak" id="speakBtn" onclick="speakLetter()" style="display:inline-flex">🔊 Hear it</button>
     <button class="btn btn-check" id="checkBtn" onclick="checkAnswer()">✅ Check</button>
     <button class="btn btn-next" id="nextBtn" onclick="nextQuestion()">▶ Next</button>
   </div>
@@ -251,12 +255,56 @@ body{font-family:'Comic Sans MS','Chalkboard SE','Fredoka','Segoe UI',cursive,sa
   </div>
 </div>
 
+<!-- Audio elements for sound effects -->
+<audio id="soundCorrect" preload="auto" src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoAAACAgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f38="></audio>
+<audio id="soundWrong" preload="auto" src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoAAACAgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f38="></audio>
+<audio id="soundCelebrate" preload="auto" src="data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVoAAACAgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f3+AgICAf39/f39/f38="></audio>
+
 </div>
 
 <script>
 // ============================================================
-// SAFAAAN'S PRE-K READING ADVENTURE - Personalized!
+// SAFAAAN'S PRE-K READING ADVENTURE - FIXED VERSION!
 // ============================================================
+
+// Sound functions - FIXED
+function playSound(id) {
+  try { 
+    const sound = document.getElementById(id);
+    if (sound) {
+      sound.currentTime = 0; // Reset to start
+      sound.play().catch(e => console.log("Sound play failed:", e));
+    }
+  } catch(e){}
+}
+
+function speakText(text) {
+  if (!text) return;
+  try {
+    window.speechSynthesis.cancel(); // Cancel any ongoing speech
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.8;
+    utterance.pitch = 1.2;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+  } catch(e) {
+    console.log("Speech failed:", e);
+  }
+}
+
+function celebrateCorrect() {
+  playSound('soundCorrect');
+  const cheers = ["Great job, Safaan!", "You did it!", "Awesome!", "Superstar!", "Wonderful!"];
+  const randomCheer = cheers[Math.floor(Math.random() * cheers.length)];
+  speakText(randomCheer);
+}
+
+function celebrateLevelComplete(stars) {
+  playSound('soundCelebrate');
+  if (stars === 3) speakText("Amazing, Safaan! Three stars!");
+  else if (stars === 2) speakText("Good job, Safaan! Two stars!");
+  else speakText("Great trying, Safaan!");
+}
 
 function rnd(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -279,7 +327,7 @@ const LETTERS = {
   5: ['U', 'V', 'W', 'X', 'Y', 'Z']
 };
 
-// Words for reading (CVC and simple words)
+// Words for reading
 const WORDS = {
   1: ['cat', 'dog', 'sun', 'hat', 'ball'],
   2: ['book', 'fish', 'bird', 'tree', 'star'],
@@ -297,7 +345,7 @@ const WORD_PICTURES = {
   'rainbow': '🌈', 'butterfly': '🦋', 'elephant': '🐘', 'giraffe': '🦒', 'dinosaur': '🦕'
 };
 
-// ========== LETTER RECOGNITION ==========
+// ========== QUESTION GENERATORS ==========
 function generateLetterQuestions(level) {
   let letters = LETTERS[level] || LETTERS[1];
   let questions = [];
@@ -321,12 +369,10 @@ function generateLetterQuestions(level) {
   return questions;
 }
 
-// ========== LETTER SOUNDS ==========
 function generateSoundQuestions(level) {
   let letters = LETTERS[level] || LETTERS[1];
   let questions = [];
   
-  // Common sound associations
   const soundAssociations = {
     'A': 'apple', 'B': 'ball', 'C': 'cat', 'D': 'dog', 'E': 'egg',
     'F': 'fish', 'G': 'goat', 'H': 'hat', 'I': 'igloo', 'J': 'jump',
@@ -356,7 +402,6 @@ function generateSoundQuestions(level) {
   return questions;
 }
 
-// ========== WRITING PRACTICE ==========
 function generateWritingQuestions(level) {
   let letters = LETTERS[level] || LETTERS[1];
   let questions = [];
@@ -377,7 +422,6 @@ function generateWritingQuestions(level) {
   return questions;
 }
 
-// ========== FIRST WORDS ==========
 function generateReadingQuestions(level) {
   let words = WORDS[level] || WORDS[1];
   let questions = [];
@@ -403,7 +447,7 @@ function generateReadingQuestions(level) {
 }
 
 // ============================================================
-// STATE MANAGEMENT - NO LEVEL LOCKS!
+// STATE MANAGEMENT
 // ============================================================
 const STORAGE_KEY = "safaan_reading_v1";
 const CATS = {
@@ -471,7 +515,6 @@ function updateSaveLbl() {
   });
   document.getElementById("saveLbl").innerHTML = "⭐ " + totalStars + " stars";
   
-  // Update progress chart
   let chart = document.getElementById("progressChart");
   if(chart) {
     let completed = 0, total = 0;
@@ -514,7 +557,6 @@ function openCategory(c) {
   grid.innerHTML = "";
   const emojis = ["🌱", "🌿", "🍃", "🌟", "🏆"];
   
-  // NO LOCKS - all levels are always unlocked!
   for(let l = 1; l <= CATS[c].levels; l++) {
     const p = progress[c][l];
     const btn = document.createElement("button");
@@ -537,14 +579,13 @@ function startLevel(l) {
   hintCount = 0;
   writingInput = "";
   
-  // Generate fresh problems!
   if(cat === 'letters') questions = generateLetterQuestions(level);
   else if(cat === 'sounds') questions = generateSoundQuestions(level);
   else if(cat === 'writing') questions = generateWritingQuestions(level);
   else if(cat === 'reading') questions = generateReadingQuestions(level);
   
   document.getElementById("quizLabel").innerHTML = CATS[cat].icon + " " + CATS[cat].label + " • Level " + l;
-  document.getElementById("speakBtn").style.display = (cat === 'letters' || cat === 'sounds' || cat === 'reading') ? "inline-flex" : "none";
+  document.getElementById("speakBtn").style.display = "inline-flex";
   showScreen("quizScreen");
   loadQuestion();
 }
@@ -561,7 +602,8 @@ function loadQuestion() {
   document.getElementById("quizQNum").innerHTML = "Game " + (qi+1) + " / " + total;
   document.getElementById("qsCorrect").innerHTML = correct;
   document.getElementById("qsWrong").innerHTML = wrong;
-  document.getElementById("qsAcc").innerHTML = "⭐";
+  const att = correct + wrong;
+  document.getElementById("qsAcc").innerHTML = att ? Math.round((correct/att)*100) + "%" : "0%";
   document.getElementById("progFill").style.width = ((qi)/total*100) + "%";
   
   document.getElementById("feedback").className = "feedback";
@@ -637,7 +679,6 @@ function renderQuestion(q) {
   
   card.innerHTML = html;
   
-  // Focus on writing input if needed
   if(cat === 'writing') {
     setTimeout(() => {
       document.getElementById('writingInput')?.focus();
@@ -645,62 +686,81 @@ function renderQuestion(q) {
   }
 }
 
-// Answer selection functions
+// FIXED: Answer selection with proper string comparison
 function selectLetter(selected, correctAnswer) {
   if(answered) return;
   answered = true;
   
-  const isCorrect = selected === correctAnswer;
+  const selectedStr = String(selected).trim();
+  const correctStr = String(correctAnswer).trim();
+  const isCorrect = (selectedStr === correctStr);
   
   if(isCorrect) { 
     correct++; 
-    celebrate();
-    highlightCorrect('opt-btn', selected, true);
+    celebrateCorrect();
   } else { 
     wrong++; 
     mistakes.push({q: `Find letter ${correctAnswer}`, exp: "Good try, Safaan! Let's practice more!"});
-    highlightCorrect('opt-btn', selected, false, correctAnswer);
+    playSound('soundWrong');
   }
   
-  showFeedback(isCorrect, isCorrect ? "🎉 Great job, Safaan! You found it!" : "💙 That's " + selected + ", we wanted " + correctAnswer + ". Try again!");
+  highlightCorrect('opt-btn', selectedStr, isCorrect, correctStr);
+  updateScoreAndFeedback(isCorrect, isCorrect ? "🎉 Great job, Safaan! You found it!" : "💙 That's " + selectedStr + ", we wanted " + correctStr);
 }
 
 function selectSound(selected, correctAnswer) {
   if(answered) return;
   answered = true;
   
-  const isCorrect = selected === correctAnswer;
+  const selectedStr = String(selected).trim();
+  const correctStr = String(correctAnswer).trim();
+  const isCorrect = (selectedStr === correctStr);
   
   if(isCorrect) { 
     correct++; 
-    celebrate();
-    highlightCorrect('opt-btn', selected, true);
+    celebrateCorrect();
   } else { 
     wrong++; 
     mistakes.push({q: `Find sound ${correctAnswer}`, exp: "Good try, Safaan! Let's practice more!"});
-    highlightCorrect('opt-btn', selected, false, correctAnswer);
+    playSound('soundWrong');
   }
   
-  showFeedback(isCorrect, isCorrect ? "🎉 Perfect, Safaan! That's the right sound!" : "💙 That's " + selected + ", the sound is " + correctAnswer);
+  highlightCorrect('opt-btn', selectedStr, isCorrect, correctStr);
+  updateScoreAndFeedback(isCorrect, isCorrect ? "🎉 Perfect, Safaan! That's the right sound!" : "💙 That's " + selectedStr + ", the sound is " + correctStr);
 }
 
 function selectWord(selected, correctAnswer) {
   if(answered) return;
   answered = true;
   
-  const isCorrect = selected === correctAnswer;
+  const selectedStr = String(selected).trim();
+  const correctStr = String(correctAnswer).trim();
+  const isCorrect = (selectedStr === correctStr);
   
   if(isCorrect) { 
     correct++; 
-    celebrate();
-    highlightCorrect('opt-btn', selected, true);
+    celebrateCorrect();
   } else { 
     wrong++; 
     mistakes.push({q: `Read word: ${correctAnswer}`, exp: "Good try, Safaan! Let's practice more!"});
-    highlightCorrect('opt-btn', selected, false, correctAnswer);
+    playSound('soundWrong');
   }
   
-  showFeedback(isCorrect, isCorrect ? "🎉 You read it, Safaan! Amazing!" : "💙 That says " + selected + ", the word is " + correctAnswer);
+  highlightCorrect('opt-btn', selectedStr, isCorrect, correctStr);
+  updateScoreAndFeedback(isCorrect, isCorrect ? "🎉 You read it, Safaan! Amazing!" : "💙 That says " + selectedStr + ", the word is " + correctStr);
+}
+
+function highlightCorrect(className, selected, isCorrect, correctAnswer) {
+  document.querySelectorAll('.' + className).forEach(btn => {
+    btn.disabled = true;
+    const btnText = String(btn.textContent).trim();
+    if(btnText === selected) {
+      btn.classList.add(isCorrect ? 'correct' : 'wrong');
+    }
+    if(btnText === correctAnswer) {
+      btn.classList.add('correct');
+    }
+  });
 }
 
 function writingTyped(val) {
@@ -713,64 +773,45 @@ function checkAnswer() {
   if(cat === 'writing') {
     const q = questions[qi];
     const input = document.getElementById('writingInput')?.value || '';
-    const isCorrect = input.toUpperCase() === q.letter;
+    const isCorrect = input.toUpperCase().trim() === q.letter;
     
     answered = true;
     
     if(isCorrect) { 
       correct++; 
-      celebrate();
+      celebrateCorrect();
     } else { 
       wrong++; 
       mistakes.push({q: `Write letter ${q.letter}`, exp: "Keep practicing, Safaan!"});
+      playSound('soundWrong');
     }
     
-    showFeedback(isCorrect, isCorrect ? "🎉 Beautiful writing, Safaan!" : "💙 Try tracing the letter " + q.letter);
+    updateScoreAndFeedback(isCorrect, isCorrect ? "🎉 Beautiful writing, Safaan!" : "💙 Try tracing the letter " + q.letter);
   } else {
-    // If no answer selected yet
-    showFeedback(false, "👆 Tap one of the buttons, Safaan!");
+    updateScoreAndFeedback(false, "👆 Tap one of the buttons, Safaan!");
   }
 }
 
-function highlightCorrect(className, selected, isCorrect, correctAnswer = null) {
-  document.querySelectorAll('.' + className).forEach(btn => {
-    btn.disabled = true;
-    if(btn.textContent === selected) {
-      btn.classList.add(isCorrect ? 'correct' : 'wrong');
-    }
-    if(correctAnswer && btn.textContent === correctAnswer) {
-      btn.classList.add('correct');
-    }
-  });
-}
-
-function speakLetter() {
-  const q = questions[qi];
-  if(q && q.sound) {
-    const utterance = new SpeechSynthesisUtterance(q.sound);
-    utterance.rate = 0.7;
-    utterance.pitch = 1.3;
-    window.speechSynthesis.speak(utterance);
-  }
-}
-
-function celebrate() {
-  // Simple celebration with confetti effect
+function updateScoreAndFeedback(isCorrect, message) {
+  document.getElementById("qsCorrect").innerHTML = correct;
+  document.getElementById("qsWrong").innerHTML = wrong;
+  const att = correct + wrong;
+  document.getElementById("qsAcc").innerHTML = att ? Math.round((correct/att)*100) + "%" : "0%";
+  
   const fb = document.getElementById("feedback");
-  fb.style.transform = "scale(1.1)";
-  setTimeout(() => fb.style.transform = "scale(1)", 200);
-}
-
-function showFeedback(isCorrect, msg) {
-  const fb = document.getElementById("feedback");
-  fb.innerHTML = isCorrect ? "✅ " + msg : "💙 " + msg;
+  fb.innerHTML = isCorrect ? "✅ " + message : "💙 " + message;
   fb.className = "feedback show " + (isCorrect ? "ok" : "bad");
   
   document.getElementById("checkBtn").style.display = "none";
   document.getElementById("nextBtn").style.display = "inline-flex";
   document.getElementById("hintBtn").style.display = "none";
-  document.getElementById("qsCorrect").innerHTML = correct;
-  document.getElementById("qsWrong").innerHTML = wrong;
+}
+
+function speakLetter() {
+  const q = questions[qi];
+  if(q && q.sound) {
+    speakText(q.sound);
+  }
 }
 
 function showHint() {
@@ -780,6 +821,7 @@ function showHint() {
   hb.innerHTML = "💡 " + (q.hint || "Try saying it out loud, Safaan!");
   hb.className = "hint-box show";
   document.getElementById("hintBtn").disabled = true;
+  if (q.hint) speakText(q.hint);
 }
 
 function nextQuestion() {
@@ -790,19 +832,19 @@ function nextQuestion() {
 
 function showResult() {
   const total = questions.length;
-  const stars = Math.min(3, Math.ceil(correct / 2)); // 1-3 stars
+  const pct = Math.round((correct/total)*100);
+  const stars = Math.min(3, Math.ceil(correct / 2));
   
-  // Save progress
   progress[cat][level].done = true;
   progress[cat][level].stars = Math.max(progress[cat][level].stars || 0, stars);
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
   updateSaveLbl();
+  celebrateLevelComplete(stars);
   
-  // Celebration based on stars
   document.getElementById("resEmoji").innerHTML = stars === 3 ? "🏆" : stars === 2 ? "🌟" : "⭐";
   document.getElementById("resTitle").innerHTML = stars === 3 ? "SUPER READER, SAFAAAN!" : stars === 2 ? "Great Job, Safaan!" : "Good Trying, Safaan!";
-  document.getElementById("resPct").innerHTML = "⭐".repeat(stars);
+  document.getElementById("resPct").innerHTML = pct + "% " + "⭐".repeat(stars);
   document.getElementById("resStars").innerHTML = "⭐".repeat(stars);
   document.getElementById("resMsg").innerHTML = stars === 3 ? "You got all stars! Amazing reading, Safaan!" 
     : stars === 2 ? "You did great, Safaan! Want to try for 3 stars?" 
@@ -812,11 +854,12 @@ function showResult() {
   if(mistakes.length > 0) {
     ms.innerHTML = '<div class="mistake-title">💪 Keep practicing, Safaan:</div>' + 
       mistakes.map(() => '<div class="mistake-item">You\'ll get it next time, Safaan! 🌟</div>').join("");
-  } else ms.innerHTML = "";
+  } else {
+    ms.innerHTML = '<div class="mistake-item">Perfect, Safaan! No mistakes! 🌟🌟🌟</div>';
+  }
   
   document.getElementById("retryBtn").onclick = function() { startLevel(level); };
   
-  // Next level button
   const nb = document.getElementById("nextLvBtn");
   if(level < CATS[cat].levels) {
     nb.style.display = "inline-flex";
@@ -824,11 +867,6 @@ function showResult() {
   } else {
     nb.style.display = "none";
   }
-  
-  // Celebration sound effect
-  const utterance = new SpeechSynthesisUtterance(stars === 3 ? "Amazing job, Safaan!" : "Great work, Safaan!");
-  utterance.rate = 0.8;
-  window.speechSynthesis.speak(utterance);
   
   showScreen("resultScreen");
 }
